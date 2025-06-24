@@ -8,6 +8,8 @@ export interface ServerConfig {
     transport: TransportConfig;
     debug?: boolean;
     credentialsFile?: string;
+    tokensFile?: string;
+    skipAuth?: boolean;
 }
 
 export function parseArgs(args: string[]): ServerConfig {
@@ -43,6 +45,9 @@ export function parseArgs(args: string[]): ServerConfig {
             case '--credentials-file':
                 config.credentialsFile = args[++i];
                 break;
+            case '--tokens-file':
+                config.tokensFile = args[++i];
+                break;
             case '--debug':
                 config.debug = true;
                 break;
@@ -57,6 +62,7 @@ Options:
   --port <number>          Port for HTTP transport (default: 3000)
   --host <string>          Host for HTTP transport (default: 127.0.0.1)
   --credentials-file <path> Path to OAuth credentials file
+  --tokens-file <path>     Path to tokens file
   --debug                  Enable debug logging
   --help                   Show this help message
 

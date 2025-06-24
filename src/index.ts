@@ -145,7 +145,8 @@ function parseCliArgs(): { command: string | undefined } {
             arg === '--transport' ||
             arg === '--port' ||
             arg === '--host' ||
-            arg === '--credentials-file'
+            arg === '--credentials-file' ||
+            arg === '--tokens-file'
         ) {
             i++; // Skip the next argument (the value)
             continue;

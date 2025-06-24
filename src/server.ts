@@ -44,7 +44,10 @@ export class GoogleCalendarMcpServer {
         this.oauth2Client = await initializeOAuth2Client(
             this.config.credentialsFile,
         );
-        this.tokenManager = new TokenManager(this.oauth2Client);
+        this.tokenManager = new TokenManager(
+            this.oauth2Client,
+            this.config.tokensFile,
+        );
         this.authServer = new AuthServer(
             this.oauth2Client,
             this.config.credentialsFile,
@@ -70,37 +73,71 @@ export class GoogleCalendarMcpServer {
 
         if (this.config.transport.type === 'stdio') {
             // For stdio mode, ensure authentication before starting server
-            const hasValidTokens =
-                await this.tokenManager.validateTokens(accountMode);
-            if (!hasValidTokens) {
-                // Ensure we're using the correct account mode (don't override it)
-                const authSuccess = await this.authServer.start(true); // openBrowser = true
+            process.stderr.write(
+                `Checking for valid ${accountMode} tokens...\n`,
+            );
+            try {
+                const hasValidTokens =
+                    await this.tokenManager.validateTokens(accountMode);
+                if (!hasValidTokens) {
+                    process.stderr.write(
+                        `No valid tokens found for ${accountMode} account. Starting authentication flow...\n`,
+                    );
+                    // Ensure we're using the correct account mode (don't override it)
+                    const authSuccess = await this.authServer.start(true); // openBrowser = true
+                    if (!authSuccess) {
+                        process.stderr.write(
+                            `Authentication failed for ${accountMode} account. Please check your OAuth credentials and try again.\n`,
+                        );
+                        process.exit(1);
+                    }
+                    process.stderr.write('Successfully authenticated user.\n');
+                } else {
+                    process.stderr.write(
+                        `Valid ${accountMode} user tokens found, skipping authentication prompt.\n`,
+                    );
+                }
+            } catch (error) {
+                process.stderr.write(
+                    `Token validation error: ${error instanceof Error ? error.message : error}\n`,
+                );
+                process.stderr.write(
+                    'Starting authentication flow due to validation error...\n',
+                );
+                const authSuccess = await this.authServer.start(true);
                 if (!authSuccess) {
                     process.stderr.write(
                         `Authentication failed for ${accountMode} account. Please check your OAuth credentials and try again.\n`,
                     );
                     process.exit(1);
                 }
-                process.stderr.write('Successfully authenticated user.\n');
-            } else {
-                process.stderr.write(
-                    `Valid ${accountMode} user tokens found, skipping authentication prompt.\n`,
-                );
             }
         } else {
             // For HTTP mode, check for tokens but don't block startup
-            const hasValidTokens =
-                await this.tokenManager.validateTokens(accountMode);
-            if (!hasValidTokens) {
+            try {
+                const hasValidTokens =
+                    await this.tokenManager.validateTokens(accountMode);
+                if (!hasValidTokens) {
+                    process.stderr.write(
+                        `!  No valid ${accountMode} user authentication tokens found.\n`,
+                    );
+                    process.stderr.write(
+                        'Visit the server URL in your browser to authenticate, or run "npm run auth" separately.\n',
+                    );
+                } else {
+                    process.stderr.write(
+                        `Valid ${accountMode} user tokens found.\n`,
+                    );
+                }
+            } catch (error) {
+                process.stderr.write(
+                    `Token validation error: ${error instanceof Error ? error.message : error}\n`,
+                );
                 process.stderr.write(
                     `!  No valid ${accountMode} user authentication tokens found.\n`,
                 );
                 process.stderr.write(
                     'Visit the server URL in your browser to authenticate, or run "npm run auth" separately.\n',
-                );
-            } else {
-                process.stderr.write(
-                    `Valid ${accountMode} user tokens found.\n`,
                 );
             }
         }
