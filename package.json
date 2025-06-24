@@ -6,11 +6,7 @@
   "bin": {
     "google-calendar-mcp": "build/index.js"
   },
-  "files": [
-    "build/",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["build/", "README.md", "LICENSE"],
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -32,17 +28,18 @@
   "author": "nspady",
   "license": "MIT",
   "scripts": {
-    "start": "node build/index.js",
-    "build": "node scripts/build.js",
-    "auth": "node build/auth-server.js",
-    "dev": "node scripts/dev.js",
+    "format": "bun --bun run biome check . --write --unsafe",
+    "start": "bun --bun build/index.js",
+    "build": "bun --bun scripts/build.js",
+    "auth": "bun --bun build/auth-server.js",
+    "dev": "bun --bun scripts/dev.js",
     "test": "vitest run src/tests/unit",
     "test:watch": "vitest src/tests/unit",
     "test:integration": "vitest run src/tests/integration",
     "test:all": "vitest run src/tests",
     "test:coverage": "vitest run src/tests/unit --coverage",
-    "start:http": "node build/index.js --transport http --port 3000",
-    "start:http:public": "node build/index.js --transport http --port 3000 --host 0.0.0.0"
+    "start:http": "bun --bun build/index.js --transport http --port 3000",
+    "start:http:public": "bun --bun build/index.js --transport http --port 3000 --host 0.0.0.0"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
