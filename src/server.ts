@@ -35,11 +35,20 @@ export class GoogleCalendarMcpServer {
         });
     }
 
+    getConfig(): ServerConfig {
+        return this.config;
+    }
+
     async initialize(): Promise<void> {
         // 1. Initialize Authentication (but don't block on it)
-        this.oauth2Client = await initializeOAuth2Client();
+        this.oauth2Client = await initializeOAuth2Client(
+            this.config.credentialsFile,
+        );
         this.tokenManager = new TokenManager(this.oauth2Client);
-        this.authServer = new AuthServer(this.oauth2Client);
+        this.authServer = new AuthServer(
+            this.oauth2Client,
+            this.config.credentialsFile,
+        );
 
         // 2. Handle startup authentication based on transport type
         await this.handleStartupAuthentication();

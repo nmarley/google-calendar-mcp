@@ -87,7 +87,7 @@ function showHelp(): void {
 Google Calendar MCP Server v${VERSION}
 
 Usage:
-  npx @cocal/google-calendar-mcp [command]
+  npx @cocal/google-calendar-mcp [command] [options]
 
 Commands:
   auth     Run the authentication flow
@@ -95,11 +95,18 @@ Commands:
   version  Show version information
   help     Show this help message
 
+Options:
+  --credentials-file <path>   Path to OAuth credentials file
+  --transport <type>          Transport type: stdio (default) | http
+  --port <number>            Port for HTTP transport (default: 3000)
+  --host <string>            Host for HTTP transport (default: 127.0.0.1)
+  --debug                    Enable debug logging
+
 Examples:
-  npx @cocal/google-calendar-mcp auth
-  npx @cocal/google-calendar-mcp start
-  npx @cocal/google-calendar-mcp version
   npx @cocal/google-calendar-mcp
+  npx @cocal/google-calendar-mcp --credentials-file /path/to/gcp-oauth.keys.json
+  npx @cocal/google-calendar-mcp start --transport http --port 3000
+  npx @cocal/google-calendar-mcp version
 
 Environment Variables:
   GOOGLE_OAUTH_CREDENTIALS    Path to OAuth credentials file
@@ -134,7 +141,12 @@ function parseCliArgs(): { command: string | undefined } {
         }
 
         // Skip transport options and their values
-        if (arg === '--transport' || arg === '--port' || arg === '--host') {
+        if (
+            arg === '--transport' ||
+            arg === '--port' ||
+            arg === '--host' ||
+            arg === '--credentials-file'
+        ) {
             i++; // Skip the next argument (the value)
             continue;
         }

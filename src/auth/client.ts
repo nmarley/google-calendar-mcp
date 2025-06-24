@@ -6,8 +6,13 @@ import {
     getKeysFilePath,
 } from './utils.js';
 
-async function loadCredentialsFromFile(): Promise<OAuthCredentials> {
-    const keysContent = await fs.readFile(getKeysFilePath(), 'utf-8');
+async function loadCredentialsFromFile(
+    credentialsFile?: string,
+): Promise<OAuthCredentials> {
+    const keysContent = await fs.readFile(
+        getKeysFilePath(credentialsFile),
+        'utf-8',
+    );
     const keys = JSON.parse(keysContent);
 
     if (keys.installed) {
@@ -30,10 +35,12 @@ async function loadCredentialsFromFile(): Promise<OAuthCredentials> {
     );
 }
 
-async function loadCredentialsWithFallback(): Promise<OAuthCredentials> {
+async function loadCredentialsWithFallback(
+    credentialsFile?: string,
+): Promise<OAuthCredentials> {
     // Load credentials from file (CLI param, env var, or default path)
     try {
-        return await loadCredentialsFromFile();
+        return await loadCredentialsFromFile(credentialsFile);
     } catch (fileError) {
         // Generate helpful error message
         const errorMessage = generateCredentialsErrorMessage();
@@ -43,11 +50,13 @@ async function loadCredentialsWithFallback(): Promise<OAuthCredentials> {
     }
 }
 
-export async function initializeOAuth2Client(): Promise<OAuth2Client> {
+export async function initializeOAuth2Client(
+    credentialsFile?: string,
+): Promise<OAuth2Client> {
     // Always use real OAuth credentials - no mocking.
     // Unit tests should mock at the handler level, integration tests need real credentials.
     try {
-        const credentials = await loadCredentialsWithFallback();
+        const credentials = await loadCredentialsWithFallback(credentialsFile);
 
         // Use the first redirect URI as the default for the base client
         return new OAuth2Client({
@@ -62,12 +71,12 @@ export async function initializeOAuth2Client(): Promise<OAuth2Client> {
     }
 }
 
-export async function loadCredentials(): Promise<{
+export async function loadCredentials(credentialsFile?: string): Promise<{
     client_id: string;
     client_secret: string;
 }> {
     try {
-        const credentials = await loadCredentialsWithFallback();
+        const credentials = await loadCredentialsWithFallback(credentialsFile);
 
         if (!credentials.client_id || !credentials.client_secret) {
             throw new Error(

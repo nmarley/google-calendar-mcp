@@ -38,16 +38,22 @@ export function getLegacyTokenPath(): string {
 }
 
 // Returns the absolute path for the GCP OAuth keys file with priority:
-// 1. Environment variable GOOGLE_OAUTH_CREDENTIALS (highest priority)
-// 2. Default file path (lowest priority)
-export function getKeysFilePath(): string {
-    // Priority 1: Environment variable
+// 1. CLI argument --credentials-file (highest priority)
+// 2. Environment variable GOOGLE_OAUTH_CREDENTIALS
+// 3. Default file path (lowest priority)
+export function getKeysFilePath(credentialsFile?: string): string {
+    // Priority 1: CLI argument
+    if (credentialsFile) {
+        return path.resolve(credentialsFile);
+    }
+
+    // Priority 2: Environment variable
     const envCredentialsPath = process.env.GOOGLE_OAUTH_CREDENTIALS;
     if (envCredentialsPath) {
         return path.resolve(envCredentialsPath);
     }
 
-    // Priority 2: Default file path
+    // Priority 3: Default file path
     const projectRoot = getProjectRoot();
     const keysPath = path.join(projectRoot, 'gcp-oauth.keys.json');
     return keysPath; // Already absolute from getProjectRoot

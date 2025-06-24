@@ -7,6 +7,7 @@ export interface TransportConfig {
 export interface ServerConfig {
     transport: TransportConfig;
     debug?: boolean;
+    credentialsFile?: string;
 }
 
 export function parseArgs(args: string[]): ServerConfig {
@@ -39,6 +40,9 @@ export function parseArgs(args: string[]): ServerConfig {
             case '--host':
                 config.transport.host = args[++i];
                 break;
+            case '--credentials-file':
+                config.credentialsFile = args[++i];
+                break;
             case '--debug':
                 config.debug = true;
                 break;
@@ -52,6 +56,7 @@ Options:
   --transport <type>        Transport type: stdio (default) | http
   --port <number>          Port for HTTP transport (default: 3000)
   --host <string>          Host for HTTP transport (default: 127.0.0.1)
+  --credentials-file <path> Path to OAuth credentials file
   --debug                  Enable debug logging
   --help                   Show this help message
 
@@ -60,10 +65,12 @@ Environment Variables:
   PORT                   Port for HTTP transport
   HOST                   Host for HTTP transport
   DEBUG                  Enable debug logging (true/false)
+  GOOGLE_OAUTH_CREDENTIALS Path to OAuth credentials file
 
 Examples:
   node build/index.js                              # stdio (local use)
   node build/index.js --transport http --port 3000 # HTTP server
+  node build/index.js --credentials-file /path/to/gcp-oauth.keys.json # Custom credentials
   PORT=3000 TRANSPORT=http node build/index.js     # Using env vars
         `);
                 process.exit(0);

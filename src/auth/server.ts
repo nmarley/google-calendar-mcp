@@ -14,9 +14,11 @@ export class AuthServer {
     private portRange: { start: number; end: number };
     private activeConnections: Set<import('net').Socket> = new Set(); // Track active socket connections
     public authCompletedSuccessfully = false; // Flag for standalone script
+    private credentialsFile?: string;
 
-    constructor(oauth2Client: OAuth2Client) {
+    constructor(oauth2Client: OAuth2Client, credentialsFile?: string) {
         this.baseOAuth2Client = oauth2Client;
+        this.credentialsFile = credentialsFile;
         this.tokenManager = new TokenManager(oauth2Client);
         this.portRange = { start: 3500, end: 3505 };
     }
@@ -185,7 +187,9 @@ export class AuthServer {
 
         // Successfully started server on `port`. Now create the flow-specific OAuth client.
         try {
-            const { client_id, client_secret } = await loadCredentials();
+            const { client_id, client_secret } = await loadCredentials(
+                this.credentialsFile,
+            );
             this.flowOAuth2Client = new OAuth2Client(
                 client_id,
                 client_secret,
