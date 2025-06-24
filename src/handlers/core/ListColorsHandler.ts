@@ -1,20 +1,24 @@
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { OAuth2Client } from "google-auth-library";
-import { BaseToolHandler } from "./BaseToolHandler.js";
-import { calendar_v3 } from "googleapis";
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { OAuth2Client } from 'google-auth-library';
+import { calendar_v3 } from 'googleapis';
+import { BaseToolHandler } from './BaseToolHandler.js';
 
 export class ListColorsHandler extends BaseToolHandler {
     async runTool(_: any, oauth2Client: OAuth2Client): Promise<CallToolResult> {
         const colors = await this.listColors(oauth2Client);
         return {
-            content: [{
-                type: "text",
-                text: `Available event colors:\n${this.formatColorList(colors)}`,
-            }],
+            content: [
+                {
+                    type: 'text',
+                    text: `Available event colors:\n${this.formatColorList(colors)}`,
+                },
+            ],
         };
     }
 
-    private async listColors(client: OAuth2Client): Promise<calendar_v3.Schema$Colors> {
+    private async listColors(
+        client: OAuth2Client,
+    ): Promise<calendar_v3.Schema$Colors> {
         try {
             const calendar = this.getCalendar(client);
             const response = await calendar.colors.get();
@@ -31,7 +35,10 @@ export class ListColorsHandler extends BaseToolHandler {
     private formatColorList(colors: calendar_v3.Schema$Colors): string {
         const eventColors = colors.event || {};
         return Object.entries(eventColors)
-            .map(([id, colorInfo]) => `Color ID: ${id} - ${colorInfo.background} (background) / ${colorInfo.foreground} (foreground)`)
-            .join("\n");
+            .map(
+                ([id, colorInfo]) =>
+                    `Color ID: ${id} - ${colorInfo.background} (background) / ${colorInfo.foreground} (foreground)`,
+            )
+            .join('\n');
     }
 }

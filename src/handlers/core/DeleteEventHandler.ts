@@ -1,24 +1,29 @@
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { OAuth2Client } from "google-auth-library";
-import { BaseToolHandler } from "./BaseToolHandler.js";
-import { DeleteEventInput } from "../../tools/registry.js";
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { OAuth2Client } from 'google-auth-library';
 import { z } from 'zod';
+import { DeleteEventInput } from '../../tools/registry.js';
+import { BaseToolHandler } from './BaseToolHandler.js';
 
 export class DeleteEventHandler extends BaseToolHandler {
-    async runTool(args: any, oauth2Client: OAuth2Client): Promise<CallToolResult> {
+    async runTool(
+        args: any,
+        oauth2Client: OAuth2Client,
+    ): Promise<CallToolResult> {
         const validArgs = args as DeleteEventInput;
         await this.deleteEvent(oauth2Client, validArgs);
         return {
-            content: [{
-                type: "text",
-                text: "Event deleted successfully",
-            }],
+            content: [
+                {
+                    type: 'text',
+                    text: 'Event deleted successfully',
+                },
+            ],
         };
     }
 
     private async deleteEvent(
         client: OAuth2Client,
-        args: DeleteEventInput
+        args: DeleteEventInput,
     ): Promise<void> {
         try {
             const calendar = this.getCalendar(client);

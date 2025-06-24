@@ -1,4 +1,4 @@
-import { calendar_v3 } from "googleapis";
+import { calendar_v3 } from 'googleapis';
 
 /**
  * Generates a Google Calendar event view URL
@@ -12,10 +12,14 @@ export function generateEventUrl(calendarId: string, eventId: string): string {
 /**
  * Gets the URL for a calendar event
  */
-export function getEventUrl(event: calendar_v3.Schema$Event, calendarId?: string): string | null {
+export function getEventUrl(
+    event: calendar_v3.Schema$Event,
+    calendarId?: string,
+): string | null {
     if (event.htmlLink) {
         return event.htmlLink;
-    } else if (calendarId && event.id) {
+    }
+    if (calendarId && event.id) {
         return generateEventUrl(calendarId, event.id);
     }
     return null;
@@ -24,26 +28,30 @@ export function getEventUrl(event: calendar_v3.Schema$Event, calendarId?: string
 /**
  * Formats a date/time with timezone abbreviation
  */
-function formatDateTime(dateTime?: string | null, date?: string | null, timeZone?: string): string {
-    if (!dateTime && !date) return "unspecified";
-    
+function formatDateTime(
+    dateTime?: string | null,
+    date?: string | null,
+    timeZone?: string,
+): string {
+    if (!dateTime && !date) return 'unspecified';
+
     try {
         const dt = dateTime || date;
-        if (!dt) return "unspecified";
-        
+        if (!dt) return 'unspecified';
+
         const parsedDate = new Date(dt);
-        if (isNaN(parsedDate.getTime())) return dt;
-        
+        if (Number.isNaN(parsedDate.getTime())) return dt;
+
         // If it's a date-only event, just return the date
         if (date && !dateTime) {
             return parsedDate.toLocaleDateString('en-US', {
                 weekday: 'short',
                 year: 'numeric',
                 month: 'short',
-                day: 'numeric'
+                day: 'numeric',
             });
         }
-        
+
         // For timed events, include timezone
         const options: Intl.DateTimeFormatOptions = {
             weekday: 'short',
@@ -52,56 +60,74 @@ function formatDateTime(dateTime?: string | null, date?: string | null, timeZone
             day: 'numeric',
             hour: 'numeric',
             minute: '2-digit',
-            timeZoneName: 'short'
+            timeZoneName: 'short',
         };
-        
+
         if (timeZone) {
             options.timeZone = timeZone;
         }
-        
+
         return parsedDate.toLocaleString('en-US', options);
     } catch (error) {
-        return dateTime || date || "unspecified";
+        return dateTime || date || 'unspecified';
     }
 }
 
 /**
  * Formats attendees with their response status
  */
-function formatAttendees(attendees?: calendar_v3.Schema$EventAttendee[]): string {
-    if (!attendees || attendees.length === 0) return "";
-    
-    const formatted = attendees.map(attendee => {
-        const email = attendee.email || "unknown";
-        const name = attendee.displayName || email;
-        const status = attendee.responseStatus || "unknown";
-        
-        const statusText = {
-            'accepted': 'accepted',
-            'declined': 'declined', 
-            'tentative': 'tentative',
-            'needsAction': 'pending'
-        }[status] || 'unknown';
-        
-        return `${name} (${statusText})`;
-    }).join(", ");
-    
+function formatAttendees(
+    attendees?: calendar_v3.Schema$EventAttendee[],
+): string {
+    if (!attendees || attendees.length === 0) return '';
+
+    const formatted = attendees
+        .map((attendee) => {
+            const email = attendee.email || 'unknown';
+            const name = attendee.displayName || email;
+            const status = attendee.responseStatus || 'unknown';
+
+            const statusText =
+                {
+                    accepted: 'accepted',
+                    declined: 'declined',
+                    tentative: 'tentative',
+                    needsAction: 'pending',
+                }[status] || 'unknown';
+
+            return `${name} (${statusText})`;
+        })
+        .join(', ');
+
     return `\nGuests: ${formatted}`;
 }
 
 /**
  * Formats a single event with rich details
  */
-export function formatEventWithDetails(event: calendar_v3.Schema$Event, calendarId?: string): string {
-    const title = event.summary ? `Event: ${event.summary}` : "Untitled Event";
-    const eventId = event.id ? `\nEvent ID: ${event.id}` : "";
-    const description = event.description ? `\nDescription: ${event.description}` : "";
-    const location = event.location ? `\nLocation: ${event.location}` : "";
-    
+export function formatEventWithDetails(
+    event: calendar_v3.Schema$Event,
+    calendarId?: string,
+): string {
+    const title = event.summary ? `Event: ${event.summary}` : 'Untitled Event';
+    const eventId = event.id ? `\nEvent ID: ${event.id}` : '';
+    const description = event.description
+        ? `\nDescription: ${event.description}`
+        : '';
+    const location = event.location ? `\nLocation: ${event.location}` : '';
+
     // Format start and end times with timezone
-    const startTime = formatDateTime(event.start?.dateTime, event.start?.date, event.start?.timeZone || undefined);
-    const endTime = formatDateTime(event.end?.dateTime, event.end?.date, event.end?.timeZone || undefined);
-    
+    const startTime = formatDateTime(
+        event.start?.dateTime,
+        event.start?.date,
+        event.start?.timeZone || undefined,
+    );
+    const endTime = formatDateTime(
+        event.end?.dateTime,
+        event.end?.date,
+        event.end?.timeZone || undefined,
+    );
+
     let timeInfo: string;
     if (event.start?.date) {
         // All-day event
@@ -117,7 +143,7 @@ export function formatEventWithDetails(event: calendar_v3.Schema$Event, calendar
                     weekday: 'short',
                     year: 'numeric',
                     month: 'short',
-                    day: 'numeric'
+                    day: 'numeric',
                 });
                 timeInfo = `\nStart Date: ${startTime}\nEnd Date: ${adjustedEndTime}`;
             } else {
@@ -128,12 +154,11 @@ export function formatEventWithDetails(event: calendar_v3.Schema$Event, calendar
         // Timed event
         timeInfo = `\nStart: ${startTime}\nEnd: ${endTime}`;
     }
-    
+
     const attendeeInfo = formatAttendees(event.attendees);
-    
+
     const eventUrl = getEventUrl(event, calendarId);
-    const urlInfo = eventUrl ? `\nView: ${eventUrl}` : "";
-    
+    const urlInfo = eventUrl ? `\nView: ${eventUrl}` : '';
+
     return `${title}${eventId}${description}${timeInfo}${location}${attendeeInfo}${urlInfo}`;
 }
-
