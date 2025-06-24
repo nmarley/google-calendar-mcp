@@ -14,11 +14,9 @@ import { ListEventsHandler } from '../../handlers/core/ListEventsHandler.js';
 vi.mock('google-auth-library', () => ({
     OAuth2Client: vi.fn().mockImplementation(() => ({
         setCredentials: vi.fn(),
-        refreshAccessToken: vi
-            .fn()
-            .mockResolvedValue({
-                credentials: { access_token: 'mock_access_token' },
-            }),
+        refreshAccessToken: vi.fn().mockResolvedValue({
+            credentials: { access_token: 'mock_access_token' },
+        }),
         on: vi.fn(),
     })),
 }));

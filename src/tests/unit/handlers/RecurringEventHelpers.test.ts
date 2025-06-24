@@ -2,7 +2,7 @@ import { calendar_v3 } from 'googleapis';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Helper functions that will be implemented
-export class RecurringEventHelpers {
+class RecurringEventHelpers {
     private calendar: calendar_v3.Calendar;
 
     constructor(calendar: calendar_v3.Calendar) {

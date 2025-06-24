@@ -490,6 +490,7 @@ interface ToolDefinition {
     handlerFunction?: (args: any) => Promise<any>;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: This is fine
 export class ToolRegistry {
     private static extractSchemaShape(schema: z.ZodType<any>): any {
         const schemaAny = schema as any;
