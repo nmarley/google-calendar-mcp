@@ -16,8 +16,13 @@ async function loadCredentialsFromFile(
     const keys = JSON.parse(keysContent);
 
     if (keys.installed) {
-        // Standard OAuth credentials file format
+        // Standard OAuth credentials file format (Desktop app)
         const { client_id, client_secret, redirect_uris } = keys.installed;
+        return { client_id, client_secret, redirect_uris };
+    }
+    if (keys.web) {
+        // Web OAuth credentials file format
+        const { client_id, client_secret, redirect_uris } = keys.web;
         return { client_id, client_secret, redirect_uris };
     }
     if (keys.client_id && keys.client_secret) {
@@ -31,7 +36,7 @@ async function loadCredentialsFromFile(
         };
     }
     throw new Error(
-        'Invalid credentials file format. Expected either "installed" object or direct client_id/client_secret fields.',
+        'Invalid credentials file format. Expected either "installed" object, "web" object, or direct client_id/client_secret fields.',
     );
 }
 
