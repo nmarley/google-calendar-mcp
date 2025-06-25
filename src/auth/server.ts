@@ -18,7 +18,7 @@ export class AuthServer {
     constructor(oauth2Client: OAuth2Client) {
         this.baseOAuth2Client = oauth2Client;
         this.tokenManager = new TokenManager(oauth2Client);
-        this.portRange = { start: 3500, end: 3505 };
+        this.portRange = { start: 3000, end: 3005 };
     }
 
     private createServer(): http.Server {
