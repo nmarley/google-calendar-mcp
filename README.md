@@ -34,7 +34,7 @@ A Model Context Protocol (MCP) server that provides Google Calendar integration 
    - Save the auth key, you'll need to add its path to the JSON in the next step
    - Add your email address as a test user under the [Audience screen](https://console.cloud.google.com/auth/audience)
       - Note: it might take a few minutes for the test user to be added. The OAuth consent will not allow you to proceed until the test user has propagated.
-      - Note about test mode: While an app is in test mode the auth tokens will expire after 1 week and need to be refreshed by running `npm run auth`.
+      - Note about test mode: While an app is in test mode the auth tokens will expire after 1 week and need to be refreshed (see Re-authentication section below).
 
 ### Installation
 
@@ -88,6 +88,28 @@ See the [Docker deployment guide](docs/docker.md) for detailed configuration opt
 2. The server will prompt for authentication on first use
 3. Complete the OAuth flow in your browser
 4. You're ready to use calendar features!
+
+### Re-authentication
+
+If you're in test mode (default), tokens expire after 7 days. If you are using a client like Claude Desktop it should open up a browser window to automatically re-auth. However, if you see authentication errors you can also resolve by following these steps:
+
+**For npx users:**
+```bash
+export GOOGLE_OAUTH_CREDENTIALS="/path/to/your/gcp-oauth.keys.json"
+npx @cocal/google-calendar-mcp auth
+```
+
+**For local installation:**
+```bash
+npm run auth
+```
+
+**To avoid weekly re-authentication**, publish your app to production mode (without verification):
+1. Go to Google Cloud Console → "APIs & Services" → "OAuth consent screen"
+2. Click "PUBLISH APP" and confirm
+3. Your tokens will no longer expire after 7 days but Google will show a more threatning warning when connecting to the app about it being unverified. 
+
+See [Authentication Guide](docs/authentication.md#moving-to-production-mode-recommended) for details.
 
 ## Example Usage
 
@@ -173,12 +195,8 @@ Along with the normal capabilities you would expect for a calendar integration y
    - Try deleting saved tokens and re-authenticating
    - Check that no other process is blocking ports 3000-3004
 
-3. **Tokens Expire Weekly:**
-   - If your Google Cloud app is in **Testing** mode, refresh tokens expire after 7 days
-   - Consider moving your app to **Production** for longer-lived refresh tokens (requires Google verification)
-
-4. **Build Errors:**
-   - Run `npm install` again
+3. **Build Errors:**
+   - Run `npm install && npm run build` again
    - Check Node.js version (use LTS)
    - Delete the `build/` directory and run `npm run build`
 

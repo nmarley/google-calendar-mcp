@@ -115,8 +115,20 @@ export GOOGLE_CALENDAR_MCP_TOKEN_PATH="/custom/path/tokens.json"
 
 If your tokens expire or become invalid:
 
+### For NPX Installation
+If you're using the MCP via `npx` (e.g., in Claude Desktop):
+
 ```bash
-npm run auth  # For local installation
+# Set your credentials path first
+export GOOGLE_OAUTH_CREDENTIALS="/path/to/your/gcp-oauth.keys.json"
+
+# Run the auth command
+npx @cocal/google-calendar-mcp auth
+```
+
+### For Local Installation
+```bash
+npm run auth
 ```
 
 The server will guide you through the authentication flow again.
@@ -130,9 +142,12 @@ While your app is in test mode:
 - Limited to test users you've explicitly added
 - Perfect for personal use
 
-To avoid weekly re-authentication, you can:
-1. Verify your app in Google Cloud Console (requires review)
-2. Or simply re-authenticate weekly with `npm run auth`
+### Avoiding Token Expiration
+
+Test mode tokens expire after 7 days. For personal use, you can simply re-authenticate weekly using the commands above. 
+
+If you need longer-lived tokens, you can publish your app to production mode in Google Cloud Console. The the number of users will be restricted unless the application completes a full approval review. Google will also warn that the app is unverified and required bypassing a warning screen. 
+
 
 ### Security Best Practices
 
